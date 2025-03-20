@@ -1,6 +1,7 @@
 package com.example.JobWebsite.service;
 
 import com.example.JobWebsite.common.Common;
+import com.example.JobWebsite.config.envConfig;
 import com.example.JobWebsite.dto.user.ResponseToken;
 import com.example.JobWebsite.entity.UserEntity;
 import com.example.JobWebsite.repository.UserRepository;
@@ -37,10 +38,6 @@ import java.util.Objects;
 
 @Service
 public class OAuth2Service {
-    @Value("${spring.security.oauth2.client.registration.google.client-id}")
-    private String client_id;
-    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
-    private String client_secret;
     @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String redirect_uri;
     @Value("${spring.security.oauth2.client.registration.google.authorization-grant-type}")
@@ -67,7 +64,7 @@ public class OAuth2Service {
     public String generateAuthUrl() {
         return authorization_uri +
                 "?response_type=" + authorization_grant_type +
-                "&client_id=" + client_id +
+                "&client_id=" + envConfig.get("GOOGLE_CLIENT_ID") +
                 "&redirect_uri=" + redirect_uri +
                 "&scope=" + URLEncoder.encode("openid profile email", StandardCharsets.UTF_8);
     }
@@ -78,7 +75,7 @@ public class OAuth2Service {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        String authorization = client_id + ":" + client_secret;
+        String authorization = envConfig.get("GOOGLE_CLIENT_ID") + ":" + envConfig.get("GOOGLE_CLIENT_SECRET");
         String basicAuth = "Basic " + Base64.getEncoder().encodeToString(authorization.getBytes(StandardCharsets.UTF_8));
         httpHeaders.set("Authorization", basicAuth);
 
