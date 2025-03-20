@@ -1,0 +1,254 @@
+-- CREATE TABLE tbl_user
+-- (
+--     id        BIGSERIAL PRIMARY KEY,
+--     username  VARCHAR,
+--     password  VARCHAR,
+--     full_name VARCHAR,
+--     image_url VARCHAR,
+--     background_image VARCHAR,
+--     birthday  TIMESTAMP,
+--     gender    VARCHAR,
+--     description VARCHAR,
+--     google_id bigserial,
+--     email VARCHAR,
+--     phoneNumber VARCHAR,
+--     address VARCHAR,
+--     role VARCHAR
+-- );
+
+-- CREATE TABLE tbl_job
+-- (
+-- 	id bigserial primary key,
+-- 	user_id BIGINT references tbl_user(id),
+-- 	job_name VARCHAR,
+--     occupation_name VARCHAR,
+--     experience VARCHAR,
+-- 	head_count int,
+-- 	expiration_date TIMESTAMP,
+--     province VARCHAR,
+--     job_type VARCHAR,
+--     job_level VARCHAR,
+-- 	min_salary decimal(1,1),
+-- 	max_salary decimal(1,1),
+--     education_level VARCHAR,
+-- 	description VARCHAR,
+-- 	required_job VARCHAR,
+-- 	employee_benefit VARCHAR,
+-- 	address VARCHAR,
+--     create_at TIMESTAMP
+-- );
+
+-- CREATE TABLE tbl_user_job_map
+-- (
+-- 	id BIGSERIAL primary key,
+-- 	user_id BIGINT references tbl_user(id),
+-- 	job_id BIGINT references tbl_job(id),
+--     introduction VARCHAR,
+--     cvUrl VARCHAR,
+-- 	state VARCHAR,
+--     create_at TIMESTAMP
+-- );
+
+-- ALTER TABLE tbl_salary ADD COLUMN min_salary int;
+-- ALTER TABLE tbl_salary ADD COLUMN max_salary int;
+
+-- INSERT INTO tbl_experience (name) VALUES
+-- ('Tất cả kinh nghiệm'),
+-- ('Chưa có kinh nghiệm'),
+-- ('Dưới 1 năm'),
+-- ('1 năm'),
+-- ('2 năm'),
+-- ('3 năm'),
+-- ('4 năm'),
+-- ('5 năm'),
+-- ('Hơn 5 năm');
+
+-- INSERT INTO tbl_salary (name, min_salary, max_salary) VALUES
+-- ('Tất cả mức lương', NULL, NULL),
+-- ('1 - 3 triệu', 1000000, 3000000),
+-- ('3 - 5 triệu', 3000000, 5000000),
+-- ('5 - 7 triệu', 5000000, 7000000),
+-- ('7 - 10 triệu', 7000000, 10000000),
+-- ('10 - 15 triệu', 10000000, 15000000),
+-- ('15 - 20 triệu', 15000000, 20000000),
+-- ('20 - 30 triệu', 20000000, 30000000),
+-- ('30 - 40 triệu', 30000000, 40000000),
+-- ('40 - 50 triệu', 40000000, 50000000),
+-- ('Hơn 50 triệu', NULL, NULL);
+
+-- INSERT INTO tbl_job_level (name) VALUES
+-- ('Tất cả cấp bậc'),
+-- ('Quản lý cấp cao'),
+-- ('Quản lý cấp trung'),
+-- ('Quản lý nhóm-giám sát'),
+-- ('Chuyên gia'),
+-- ('Chuyên viên-nhân viên'),
+-- ('Cộng tác viên');
+
+-- INSERT INTO tbl_education_level (name) VALUES
+-- ('Tất cả trình độ'),
+-- ('Trên đại học'),
+-- ('Đại học'),
+-- ('Cao đẳng'),
+-- ('Trung cấp'),
+-- ('Trung học'),
+-- ('Chứng chỉ'),
+-- ('Không yêu cầu');
+
+-- INSERT INTO tbl_job_type (name) VALUES
+-- ('Loại công việc'),
+-- ('Toàn thời gian cố định'),
+-- ('Toàn thời gian tạm thời'),
+-- ('Bán thời gian cố định'),
+-- ('Bán thời gian tạm thời'),
+-- ('Theo hợp đồng tư vấn'),
+-- ('Thực tập'),
+-- ('Khác');
+
+-- INSERT INTO tbl_province (name) VALUES
+-- ('Toàn quốc'),
+-- ('An Giang'),
+-- ('Bà Rịa - Vũng Tàu'),
+-- ('Bạc Liêu'),
+-- ('Bắc Giang'),
+-- ('Bắc Kạn'),
+-- ('Bắc Ninh'),
+-- ('Bến Tre'),
+-- ('Bình Dương'),
+-- ('Bình Định'),
+-- ('Bình Phước'),
+-- ('Bình Thuận'),
+-- ('Cà Mau'),
+-- ('Cao Bằng'),
+-- ('Cần Thơ'),
+-- ('Đà Nẵng'),
+-- ('Đắk Lắk'),
+-- ('Đắk Nông'),
+-- ('Điện Biên'),
+-- ('Đồng Nai'),
+-- ('Đồng Tháp'),
+-- ('Gia Lai'),
+-- ('Hà Giang'),
+-- ('Hà Nam'),
+-- ('Hà Nội'),
+-- ('Hà Tĩnh'),
+-- ('Hải Dương'),
+-- ('Hải Phòng'),
+-- ('Hậu Giang'),
+-- ('Hòa Bình'),
+-- ('Hưng Yên'),
+-- ('Khánh Hòa'),
+-- ('Kiên Giang'),
+-- ('Kon Tum'),
+-- ('Lai Châu'),
+-- ('Lâm Đồng'),
+-- ('Lạng Sơn'),
+-- ('Lào Cai'),
+-- ('Long An'),
+-- ('Nam Định'),
+-- ('Nghệ An'),
+-- ('Ninh Bình'),
+-- ('Ninh Thuận'),
+-- ('Phú Thọ'),
+-- ('Phú Yên'),
+-- ('Quảng Bình'),
+-- ('Quảng Nam'),
+-- ('Quảng Ngãi'),
+-- ('Quảng Ninh'),
+-- ('Quảng Trị'),
+-- ('Sóc Trăng'),
+-- ('Sơn La'),
+-- ('Tây Ninh'),
+-- ('Thái Bình'),
+-- ('Thái Nguyên'),
+-- ('Thanh Hóa'),
+-- ('Thừa Thiên Huế'),
+-- ('Tiền Giang'),
+-- ('TP. Hồ Chí Minh'),
+-- ('Trà Vinh'),
+-- ('Tuyên Quang'),
+-- ('Vĩnh Long'),
+-- ('Vĩnh Phúc'),
+-- ('Yên Bái');
+
+-- INSERT INTO tbl_occupation (name) VALUES
+-- ('Hành chính - Thư ký'),
+-- ('Khách sạn - Nhà hàng - Du lịch'),
+-- ('Bán sỉ - Bán lẻ - Quản lý cửa hàng'),
+-- ('Marketing'),
+-- ('Bán hàng - Kinh doanh'),
+-- ('Kế toàn'),
+-- ('Tài chính - Đầu tư - Chứng khoán'),
+-- ('Kiểm toán'),
+-- ('Khoa học - Kỹ thuật'),
+-- ('An ninh - Bảo vệ'),
+-- ('Thiết kế - Sáng tạo nghệ thuật'),
+-- ('Kiến trúc - Thiết kế nội ngoại thất'),
+-- ('IT phần cứng - Mạng'),
+-- ('IT phần mềm'),
+-- ('Sản xuất - Lắp ráp - Chế biến'),
+-- ('Vận hành - Bảo trì - Bảo dưỡng'),
+-- ('Nông - Lâm - Ngư nghiệp'),
+-- ('Thu mua - Kho vận - Chuỗi cung ứng'),
+-- ('Xuất nhập khẩu'),
+-- ('Vận tải - Lái xe - Giao nhận'),
+-- ('Ngân hàng'),
+-- ('Khai thác năng lượng - Khoáng sản - Địa chất'),
+-- ('Y tế - Chăm sóc sức khỏe'),
+-- ('Nhân sự'),
+-- ('Bảo hiểm'),
+-- ('Thông tin - Truyền thông - Quảng cáo'),
+-- ('Luật - Pháp lý - Tuân thủ'),
+-- ('Quản lý dự án'),
+-- ('Quản lý tiêu chuẩn và chất lượng'),
+-- ('Bất động sản'),
+-- ('Chăm sóc khách hàng'),
+-- ('Xây dựng'),
+-- ('Giáo dục - Đào tạo'),
+-- ('Phân tích - Thông kê dữ liệu'),
+-- ('An toàn lao động'),
+-- ('Biên phiên dịch'),
+-- ('Bưu chính viễn thông'),
+-- ('Dầu khí'),
+-- ('Dệt may - Da giày - Thời trang'),
+-- ('Điện - Điện tử - Điện lạnh'),
+-- ('Dược phẩm'),
+-- ('Hóa học - Hóa sinh'),
+-- ('Môi trường - Xử lý chất thải'),
+-- ('Thực phẩm - Đồ uống'),
+-- ('Chăn nuôi thú ý'),
+-- ('Cơ khí - Ô tô - Tự động hóa'),
+-- ('Công nghệ thực phẩm - Dinh dưỡng'),
+-- ('Lao động phổ thông'),
+-- ('Phi chính phủ - Phi lợi nhuận'),
+-- ('Truyền hình - Báo chí - Biên tập'),
+-- ('Xuất bản - In ấn'),
+-- ('Thực tập sinh');
+
+-- CREATE TABLE tbl_recruiter_job_map
+-- (
+-- 	id BIGSERIAL primary key,
+-- 	recruiter_id BIGINT references tbl_user(id),
+-- 	user_job_id BIGINT references tbl_user_job_map(id),
+-- 	state VARCHAR,
+-- 	create_at TIMESTAMP
+-- );
+
+-- CREATE TABLE tbl_job_like_map
+-- (
+-- 	id BIGSERIAL primary key,
+-- 	user_id BIGINT references tbl_user(id),
+-- 	job_id BIGINT references tbl_job(id),
+-- 	create_at TIMESTAMP
+-- )
+
+-- CREATE TABLE tbl_notification
+-- (
+-- 	id BIGSERIAL primary key,
+-- 	user_id BIGINT references tbl_user(id),
+-- 	interact_id BIGINT references tbl_user(id),
+-- 	job_id BIGINT references tbl_job(id),
+--     type VARCHAR,
+-- 	has_seen boolean,
+-- 	create_at TIMESTAMP
+-- )

@@ -1,0 +1,38 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 805787417017-f8do34oaa5972u966uuaun468jg7ipik.apps.googleusercontent.com
+            client-secret: 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
+            scope: profile, email
+            redirect-uri: http://localhost:5500/components/login/login.html
+            authorization-grant-type: code
+            client-name: Google
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: dogiaphong2k4@gmail.com
+    password: nqnn izye yshr trbx
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+server:
+  port: 8086
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
