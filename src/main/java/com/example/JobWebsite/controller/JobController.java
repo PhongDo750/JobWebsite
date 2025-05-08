@@ -7,6 +7,7 @@ import com.example.JobWebsite.dto.job.JobOutputV1;
 import com.example.JobWebsite.dto.job.JobOutputV2;
 import com.example.JobWebsite.service.JobService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -23,23 +24,31 @@ public class JobController {
     @Operation(summary = "Đăng tuyển")
     @PostMapping("/create")
     public ApiResponse<?> createJob(@RequestHeader(Common.AUTHORIZATION) String accessToken,
-                                    @RequestBody JobInput jobInput) {
+                                    @RequestBody @Valid JobInput jobInput) {
         return jobService.createJob(accessToken, jobInput);
     }
 
     @Operation(summary = "Update Job")
     @PostMapping("/update")
-    public void updateJob(@RequestHeader(Common.AUTHORIZATION) String accessToken,
-                          @RequestBody JobInput jobInput,
+    public ApiResponse<?> updateJob(@RequestHeader(Common.AUTHORIZATION) String accessToken,
+                          @RequestBody @Valid JobInput jobInput,
                           @RequestParam Long jobId) {
         jobService.updateJob(accessToken, jobInput, jobId);
+        return ApiResponse.builder()
+                .code(200)
+                .message("Thay đổi thông tin thành công")
+                .build();
     }
 
     @Operation(summary = "Xóa tin tuyển dụng")
     @DeleteMapping("/delete")
-    public void deleteJob(@RequestHeader(Common.AUTHORIZATION) String accessToken,
+    public ApiResponse<?> deleteJob(@RequestHeader(Common.AUTHORIZATION) String accessToken,
                           @RequestParam Long jobId) {
         jobService.deleteJob(accessToken, jobId);
+        return ApiResponse.builder()
+                .code(200)
+                .message("Xóa công việc thành công")
+                .build();
     }
 
     @Operation(summary = "Tìm kiếm job")

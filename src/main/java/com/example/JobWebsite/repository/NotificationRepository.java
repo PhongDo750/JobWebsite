@@ -15,6 +15,9 @@ public interface NotificationRepository extends JpaRepository<NotificationEntity
     @Query("SELECT n from NotificationEntity n where n.userId = :userId ORDER BY n.createAt DESC")
     Page<NotificationEntity> findAllByUserId(@Param("userId") Long userId, Pageable pageable);
 
+    //SELECT COUNT(*)
+    //FROM tbl_notification
+    //WHERE user_id = userId AND has_seen = false;
     int countAllByUserIdAndHasSeenIsFalse(Long userId);
 
     void deleteAllByUserIdOrInteractId(Long userId, Long interactId);

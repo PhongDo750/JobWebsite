@@ -17,6 +17,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +44,11 @@ public class JobService {
         Long userId = TokenHelper.getUserIdFromToken(accessToken);
         UserEntity userEntity = customRepository.getUserBy(userId);
         if (!userEntity.getRole().equals(Common.RECRUITER)) {
-            throw new AppException(ErrorCode.UN_AUTHORIZATION);
+            throw new AppException(HttpStatus.UNAUTHORIZED, ErrorCode.UN_AUTHORIZATION);
+        }
+
+        if (jobInput.getMaxSalary() < jobInput.getMinSalary()) {
+            throw new AppException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_SALARY);
         }
 
         JobEntity jobEntity = jobMapper.getEntityFromInput(jobInput);
@@ -61,12 +66,38 @@ public class JobService {
         jobRepository.save(jobEntity);
         return ApiResponse.builder()
                 .code(200)
+                .message("Tạo công việc thành công")
+                .build();
+    }
+
+    @Transactional
+    public ApiResponse<?> updateJob(String accessToken, JobInput jobInput, Long jobId) {
+        Long userId = TokenHelper.getUserIdFromToken(accessToken);
+        UserEntity userEntity = customRepository.getUserBy(userId);
+        if (!userEntity.getRole().equals(Common.RECRUITER)) {
+            throw new AppException(ErrorCode.UN_AUTHORIZATION);
+        }
+
+        JobEntity jobEntity = customRepository.getJobBy(jobId);
+        if (!jobEntity.getUserId().equals(userId)) {
+            throw new AppException(ErrorCode.UN_AUTHORIZATION);
+        }
+
+        if (jobInput.getMaxSalary() < jobInput.getMinSalary()) {
+            throw new AppException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_SALARY);
+        }
+
+        jobMapper.updateEntityFromInput(jobEntity, jobInput);
+        jobRepository.save(jobEntity);
+
+        return ApiResponse.builder()
+                .code(200)
                 .message("OK")
                 .build();
     }
 
     @Transactional
-    public void updateJob(String accessToken, JobInput jobInput, Long jobId) {
+    public ApiResponse<?> deleteJob(String accessToken, Long jobId) {
         Long userId = TokenHelper.getUserIdFromToken(accessToken);
         UserEntity userEntity = customRepository.getUserBy(userId);
         if (!userEntity.getRole().equals(Common.RECRUITER)) {
@@ -75,24 +106,7 @@ public class JobService {
 
         JobEntity jobEntity = customRepository.getJobBy(jobId);
         if (!jobEntity.getUserId().equals(userId)) {
-            throw new RuntimeException(Common.ACTION_FAIL);
-        }
-
-        jobMapper.updateEntityFromInput(jobEntity, jobInput);
-        jobRepository.save(jobEntity);
-    }
-
-    @Transactional
-    public void deleteJob(String accessToken, Long jobId) {
-        Long userId = TokenHelper.getUserIdFromToken(accessToken);
-        UserEntity userEntity = customRepository.getUserBy(userId);
-        if (!userEntity.getRole().equals(Common.RECRUITER)) {
             throw new AppException(ErrorCode.UN_AUTHORIZATION);
-        }
-
-        JobEntity jobEntity = customRepository.getJobBy(jobId);
-        if (!jobEntity.getUserId().equals(userId)) {
-            throw new RuntimeException(Common.ACTION_FAIL);
         }
 
         notificationRepository.deleteAllByJobId(jobId);
@@ -107,6 +121,11 @@ public class JobService {
         jobLikeMapRepository.deleteAllByJobId(jobId);
 
         jobRepository.deleteById(jobId);
+
+        return ApiResponse.builder()
+                .code(200)
+                .message("OK")
+                .build();
     }
 
     @Transactional(readOnly = true)
@@ -116,6 +135,7 @@ public class JobService {
                                         String accessToken) {
         Specification<JobEntity> jobSpecification =
                 JobSpecification.filterJobs(jobName, occupationName, experience, province, jobType, jobLevel, minSalary, maxSalary, educationLevel);
+
 
         Page<JobEntity> jobEntityPage = jobRepository.findAll(jobSpecification, pageable);
         if (jobEntityPage.isEmpty() || Objects.isNull(jobEntityPage)) {
@@ -234,6 +254,7 @@ public class JobService {
                             .maxSalary(jobEntity.getMaxSalary())
                             .address(jobEntity.getAddress())
                             .expirationDate(jobEntity.getExpirationDate().format(formatter))
+                            .createdAt(userJobMapEntity.getCreateAt().format(formatter))
                             .build();
                     return jobOutputV1;
                 }
@@ -269,6 +290,7 @@ public class JobService {
                             .maxSalary(jobEntity.getMaxSalary())
                             .address(jobEntity.getAddress())
                             .expirationDate(jobEntity.getExpirationDate().format(formatter))
+                            .createdAt(jobEntity.getCreateAt().format(formatter))
                             .build();
 
                     if (!Objects.isNull(jobLikeEntityMap)) {

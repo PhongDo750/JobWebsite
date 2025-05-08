@@ -9,7 +9,7 @@
 --     birthday  TIMESTAMP,
 --     gender    VARCHAR,
 --     description VARCHAR,
---     google_id bigserial,
+--     google_id VARCHAR,
 --     email VARCHAR,
 --     phoneNumber VARCHAR,
 --     address VARCHAR,
@@ -248,7 +248,6 @@
 -- 	user_id BIGINT references tbl_user(id),
 -- 	interact_id BIGINT references tbl_user(id),
 -- 	job_id BIGINT references tbl_job(id),
---     type VARCHAR,
 -- 	has_seen boolean,
 -- 	create_at TIMESTAMP
 -- )

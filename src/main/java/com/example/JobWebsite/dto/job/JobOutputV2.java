@@ -16,6 +16,7 @@ public class JobOutputV2 {
     private Double minSalary;
     private Double maxSalary;
     private String address;
+    private String province;
     private String expirationDate;
     private String occupationName;
     private String experience;

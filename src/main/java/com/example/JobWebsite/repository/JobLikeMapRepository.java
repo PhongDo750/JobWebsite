@@ -12,6 +12,11 @@ public interface JobLikeMapRepository extends JpaRepository<JobLikeMapEntity, Lo
 
     List<JobLikeMapEntity> findAllByUserId(Long userId);
 
+    //SELECT EXISTS (
+    //    SELECT 1
+    //    FROM tbl_job_like_map
+    //    WHERE user_id = userId AND job_id = jobId
+    //);
     boolean existsByUserIdAndJobId(Long userId, Long jobId);
 
     void deleteAllByUserId(Long userId);

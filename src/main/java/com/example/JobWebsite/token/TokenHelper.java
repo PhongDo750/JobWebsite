@@ -1,9 +1,12 @@
 package com.example.JobWebsite.token;
 
 import com.example.JobWebsite.entity.UserEntity;
+import com.example.JobWebsite.exceptionhandler.AppException;
+import com.example.JobWebsite.exceptionhandler.ErrorCode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.http.HttpStatus;
 
 import java.util.Date;
 
@@ -27,10 +30,14 @@ public class TokenHelper {
 
     public static Long getUserIdFromToken(String accessToken) {
         accessToken = accessToken.substring(7);
-        Claims claims = Jwts.parser()
-                .setSigningKey(SECRET_KEY)
-                .parseClaimsJws(accessToken)
-                .getBody();
-        return claims.get("user_id", Long.class);
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(SECRET_KEY)
+                    .parseClaimsJws(accessToken)
+                    .getBody();
+            return claims.get("user_id", Long.class);
+        } catch (Exception e) {
+            throw new AppException(HttpStatus.UNAUTHORIZED, ErrorCode.UN_AUTHORIZATION);
+        }
     }
 }

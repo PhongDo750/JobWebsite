@@ -9,9 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,15 +43,21 @@ public class UserController {
 
     @Operation(summary = "Đăng ký tài khoản")
     @PostMapping("sign-up")
-    public ApiResponse<TokenResponse> signUp(@RequestBody UserRequest signUpRequest){
+    public ApiResponse<TokenResponse> signUp(@RequestBody @Valid UserRequest signUpRequest){
         return ApiResponse.<TokenResponse>builder()
                 .data(userService.signUp(signUpRequest))
+                .code(200)
+                .message("Đăng ký thành công")
                 .build();
     }
 
     @PostMapping("log-in")
-    public ResponseEntity<TokenResponse> logIn(@RequestBody @Valid LogInRequest logInRequest) {
-        return new ResponseEntity<>(userService.logIn(logInRequest), HttpStatus.OK);
+    public ApiResponse<TokenResponse> logIn(@RequestBody @Valid LogInRequest logInRequest) {
+        return ApiResponse.<TokenResponse>builder()
+                .data(userService.logIn(logInRequest))
+                .code(200)
+                .message("Đăng nhập thành công")
+                .build();
     }
 
     @Operation(summary = "Lấy code để reset password")
@@ -64,7 +68,7 @@ public class UserController {
 
     @Operation(summary = "Lấy lại mật khẩu")
     @PostMapping("/recover-password")
-    public ApiResponse<?> recoverPassword(@RequestBody RecoverPassword recoverPassword) {
+    public ApiResponse<?> recoverPassword(@RequestBody @Valid RecoverPassword recoverPassword) {
         return userService.recoverPassword(recoverPassword);
     }
 

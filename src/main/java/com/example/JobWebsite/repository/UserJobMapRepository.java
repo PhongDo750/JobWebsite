@@ -23,6 +23,8 @@ public interface UserJobMapRepository extends JpaRepository<UserJobMapEntity, Lo
             "AND EXTRACT(MONTH FROM u.createAt) = :month")
     int countUsersAppliedInMonth(@Param("year") int year, @Param("month") int month);
 
+    //DELETE FROM jobs
+    //WHERE job_id IN jobIds;
     void deleteAllByJobIdIn(List<Long> jobIds);
 
     void  deleteAllByJobId(Long jobId);

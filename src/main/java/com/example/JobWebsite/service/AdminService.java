@@ -15,6 +15,7 @@ import com.example.JobWebsite.token.TokenHelper;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +42,7 @@ public class AdminService {
         UserEntity adminEntity = customRepository.getUserBy(adminId);
 
         if (!adminEntity.getRole().equals(Common.ADMIN)) {
-            throw new AppException(ErrorCode.UN_AUTHORIZATION);
+            throw new AppException(HttpStatus.UNAUTHORIZED, ErrorCode.UN_AUTHORIZATION);
         }
 
         Page<UserEntity> userEntityPage = userRepository.findAllUserWithoutAdmin(Common.ADMIN, pageable);
@@ -66,7 +67,7 @@ public class AdminService {
         UserEntity adminEntity = customRepository.getUserBy(adminId);
 
         if (!adminEntity.getRole().equals(Common.ADMIN)) {
-            throw new AppException(ErrorCode.UN_AUTHORIZATION);
+            throw new AppException(HttpStatus.UNAUTHORIZED, ErrorCode.UN_AUTHORIZATION);
         }
 
         UserEntity userEntity = userRepository.findByEmail(email);
@@ -90,7 +91,7 @@ public class AdminService {
         UserEntity adminEntity = customRepository.getUserBy(adminId);
 
         if (!adminEntity.getRole().equals(Common.ADMIN)) {
-            throw new AppException(ErrorCode.UN_AUTHORIZATION);
+            throw new AppException(HttpStatus.UNAUTHORIZED, ErrorCode.UN_AUTHORIZATION);
         }
 
         int count = jobRepository.countJobsPostedInMonth(Integer.parseInt(year), Integer.parseInt(month));
@@ -108,7 +109,7 @@ public class AdminService {
         UserEntity adminEntity = customRepository.getUserBy(adminId);
 
         if (!adminEntity.getRole().equals(Common.ADMIN)) {
-            throw new AppException(ErrorCode.UN_AUTHORIZATION);
+            throw new AppException(HttpStatus.UNAUTHORIZED, ErrorCode.UN_AUTHORIZATION);
         }
 
         return ApiResponse.<Integer>builder()
@@ -124,7 +125,7 @@ public class AdminService {
         UserEntity adminEntity = customRepository.getUserBy(adminId);
 
         if (!adminEntity.getRole().equals(Common.ADMIN)) {
-            throw new AppException(ErrorCode.UN_AUTHORIZATION);
+            throw new AppException(HttpStatus.UNAUTHORIZED, ErrorCode.UN_AUTHORIZATION);
         }
 
         List<UserEntity> userEntities = userRepository.findAll();
@@ -150,7 +151,7 @@ public class AdminService {
         UserEntity adminEntity = customRepository.getUserBy(adminId);
 
         if (!adminEntity.getRole().equals(Common.ADMIN)) {
-            throw new AppException(ErrorCode.UN_AUTHORIZATION);
+            throw new AppException(HttpStatus.UNAUTHORIZED, ErrorCode.UN_AUTHORIZATION);
         }
 
         UserEntity userEntity = customRepository.getUserBy(userId);
@@ -179,7 +180,7 @@ public class AdminService {
 
         return ApiResponse.builder()
                 .code(200)
-                .message("OK")
+                .message("Xóa user thành công")
                 .build();
     }
 
@@ -189,7 +190,7 @@ public class AdminService {
         UserEntity adminEntity = customRepository.getUserBy(adminId);
 
         if (!adminEntity.getRole().equals(Common.ADMIN)) {
-            throw new AppException(ErrorCode.UN_AUTHORIZATION);
+            throw new AppException(HttpStatus.UNAUTHORIZED, ErrorCode.UN_AUTHORIZATION);
         }
 
         Page<JobEntity> jobEntityPage = jobRepository.findJobsPostedInMonth(Integer.parseInt(year), Integer.parseInt(month), pageable);
@@ -220,7 +221,7 @@ public class AdminService {
         UserEntity adminEntity = customRepository.getUserBy(adminId);
 
         if (!adminEntity.getRole().equals(Common.ADMIN)) {
-            throw new AppException(ErrorCode.UN_AUTHORIZATION);
+            throw new AppException(HttpStatus.UNAUTHORIZED, ErrorCode.UN_AUTHORIZATION);
         }
 
         notificationRepository.deleteAllByJobId(jobId);
@@ -238,7 +239,7 @@ public class AdminService {
 
         return ApiResponse.builder()
                 .code(200)
-                .message("OK")
+                .message("Xóa công việc thành công")
                 .build();
     }
 
@@ -248,7 +249,7 @@ public class AdminService {
         UserEntity adminEntity = customRepository.getUserBy(adminId);
 
         if (!adminEntity.getRole().equals(Common.ADMIN)) {
-            throw new AppException(ErrorCode.UN_AUTHORIZATION);
+            throw new AppException(HttpStatus.UNAUTHORIZED, ErrorCode.UN_AUTHORIZATION);
         }
 
         JobEntity jobEntity = customRepository.getJobBy(jobId);

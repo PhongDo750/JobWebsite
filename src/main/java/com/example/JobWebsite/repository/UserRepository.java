@@ -12,14 +12,26 @@ import java.util.Set;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
+    //SELECT EXISTS (
+    //    SELECT 1
+    //    FROM tbl_user
+    //    WHERE username = 'phong'
+    //);
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);
 
     boolean existsByPhoneNumber(String phoneNumber);
 
+    //SELECT *
+    //FROM tbl_user
+    //WHERE username = 'phong'
+    //LIMIT 1;
     UserEntity findByUsername(String username);
 
+    //SELECT *
+    //FROM tbl_user
+    //WHERE id IN (1, 2, 3, 4);
     List<UserEntity> findAllByIdIn(Set<Long> userIds);
 
     UserEntity findByGoogleId(String googleId);

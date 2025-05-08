@@ -17,6 +17,7 @@ import com.example.JobWebsite.repository.UserRepository;
 import com.example.JobWebsite.token.TokenHelper;
 import lombok.AllArgsConstructor;
 import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,15 +43,15 @@ public class UserService {
     @Transactional
     public TokenResponse signUp(UserRequest signUpRequest) {
         if (Boolean.TRUE.equals(userRepository.existsByUsername(signUpRequest.getUsername()))) {
-            throw new AppException(ErrorCode.USERNAME_EXISTED);
+            throw new AppException(HttpStatus.BAD_REQUEST, ErrorCode.USERNAME_EXISTED);
         }
 
         if (Boolean.TRUE.equals(userRepository.existsByEmail(signUpRequest.getEmail()))) {
-            throw new AppException(ErrorCode.EMAIL_EXISTED);
+            throw new AppException(HttpStatus.BAD_REQUEST, ErrorCode.EMAIL_EXISTED);
         }
 
         if (Boolean.TRUE.equals(userRepository.existsByPhoneNumber(signUpRequest.getPhoneNumber()))) {
-            throw new AppException(ErrorCode.PHONE_EXISTED);
+            throw new AppException(HttpStatus.BAD_REQUEST, ErrorCode.PHONE_EXISTED);
         }
 
         signUpRequest.setPassword(BCrypt.hashpw(signUpRequest.getPassword(), BCrypt.gensalt()));
@@ -67,11 +68,11 @@ public class UserService {
     public TokenResponse logIn(LogInRequest loginRequest) {
         UserEntity userEntity = userRepository.findByUsername(loginRequest.getUsername());
         if (Objects.isNull(userEntity)) {
-            throw new AppException(ErrorCode.USERNAME_NOT_EXISTED);
+            throw new AppException(HttpStatus.UNAUTHORIZED, ErrorCode.USERNAME_NOT_EXISTED);
         }
 
         if (!BCrypt.checkpw(loginRequest.getPassword(), userEntity.getPassword())) {
-            throw new AppException(ErrorCode.INCORRECT_PASSWORD);
+            throw new AppException(HttpStatus.UNAUTHORIZED, ErrorCode.INCORRECT_PASSWORD);
         }
         return TokenResponse.builder()
                 .accessToken(TokenHelper.generateToken(userEntity))
@@ -101,14 +102,16 @@ public class UserService {
             userEntity.setBackgroundImage(CloudinaryHelper.uploadAndGetFileUrl(backgroundImg));
         }
 
-        userEntity.setDescription(changeInfoUserRequest.getDescription()
-                .replaceAll("<li>|</li>|<ul>|</ul>|<br />", "")
-        );
+        if(changeInfoUserRequest.getDescription() != null) {
+            userEntity.setDescription(changeInfoUserRequest.getDescription()
+                    .replaceAll("<li>|</li>|<ul>|</ul>|<br />", "")
+            );
+        }
 
         userRepository.save(userEntity);
         return ApiResponse.builder()
                 .code(200)
-                .message("OK")
+                .message("Thay đổi thông tin thành công")
                 .build();
     }
 
@@ -124,10 +127,10 @@ public class UserService {
     }
 
     @Transactional
-    public ApiResponse<?> sendCodeToEmail(String userName) {
-        UserEntity userEntity = userRepository.findByUsername(userName);
+    public ApiResponse<?> sendCodeToEmail(String username) {
+        UserEntity userEntity = userRepository.findByUsername(username);
         if (Objects.isNull(userEntity)) {
-            throw new AppException(ErrorCode.USERNAME_NOT_EXISTED);
+            throw new AppException(HttpStatus.BAD_REQUEST, ErrorCode.USERNAME_NOT_EXISTED);
         }
         String code = generateCode();
         EmailDetails emailDetails = EmailDetails.builder()
@@ -137,24 +140,30 @@ public class UserService {
                 .build();
         emailService.sendEmail(emailDetails);
         presenceService.plusCode(String.valueOf(userEntity.getId()), code);
-        return ApiResponse.builder().build();
+        return ApiResponse.builder()
+                .code(200)
+                .message("Gửi mã code thành công")
+                .build();
     }
 
     @Transactional
     public ApiResponse<?> recoverPassword(RecoverPassword recoverPassword) {
         UserEntity userEntity = userRepository.findByUsername(recoverPassword.getUsername());
         if (Objects.isNull(userEntity)) {
-            throw new AppException(ErrorCode.USERNAME_NOT_EXISTED);
+            throw new AppException(HttpStatus.BAD_REQUEST, ErrorCode.USERNAME_NOT_EXISTED);
         }
 
         if (!recoverPassword.getCode().equals(presenceService.getCode(String.valueOf(userEntity.getId())))) {
-            throw new AppException(ErrorCode.CODE_NOT_MATCH);
+            throw new AppException(HttpStatus.BAD_REQUEST, ErrorCode.CODE_NOT_MATCH);
         } else {
             userEntity.setPassword(BCrypt.hashpw(recoverPassword.getNewPassword(), BCrypt.gensalt()));
             presenceService.delete(String.valueOf(userEntity.getId()));
             userRepository.save(userEntity);
         }
-        return ApiResponse.builder().build();
+        return ApiResponse.builder()
+                .code(200)
+                .message("Thay đổi mật khẩu thành công")
+                .build();
     }
 
     @Transactional
@@ -162,7 +171,7 @@ public class UserService {
         Long userId = TokenHelper.getUserIdFromToken(accessToken);
         UserEntity userEntity = customRepository.getUserBy(userId);
         if (Objects.isNull(userEntity) || !BCrypt.checkpw(resetPassword.getOldPassword(), userEntity.getPassword())) {
-            throw new RuntimeException(Common.INCORRECT_PASSWORD);
+            throw new AppException(HttpStatus.BAD_REQUEST, ErrorCode.INCORRECT_PASSWORD);
         }
 
         userEntity.setPassword(BCrypt.hashpw(resetPassword.getNewPassword(), BCrypt.gensalt()));

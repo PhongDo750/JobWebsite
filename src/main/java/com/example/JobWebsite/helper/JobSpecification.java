@@ -1,11 +1,14 @@
 package com.example.JobWebsite.helper;
 
 import com.example.JobWebsite.entity.JobEntity;
+import com.example.JobWebsite.exceptionhandler.AppException;
+import com.example.JobWebsite.exceptionhandler.ErrorCode;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +46,11 @@ public class JobSpecification {
 
             // Xử lý điều kiện minSalary & maxSalary
             if (minSalary != null && maxSalary != null) {
+
+                if (minSalary > maxSalary) {
+                    throw new AppException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_SALARY);
+                }
+
                 predicates.add(cb.or(
                         cb.between(root.get("minSalary"), minSalary, maxSalary),
                         cb.between(root.get("maxSalary"), minSalary, maxSalary)

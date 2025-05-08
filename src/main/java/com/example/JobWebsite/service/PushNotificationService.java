@@ -50,17 +50,17 @@ public class PushNotificationService {
         presenceService.plusSubscription(String.valueOf(userId), subscription);
         return ApiResponse.builder()
                 .code(200)
-                .message("OK")
+                .message("Đăng ký nhận thông báo thành công")
                 .build();
     }
 
-    public ApiResponse<?> unsubscribe(String accessToken, String endpoint) {
+    public ApiResponse<?> unsubscribe(String accessToken) {
         Long userId = TokenHelper.getUserIdFromToken(accessToken);
-        System.out.println("Unsubscribed from " + endpoint);
+        System.out.println("Unsubcribed to " + userId);
         presenceService.deleteSubscription(String.valueOf(userId));
         return ApiResponse.builder()
                 .code(200)
-                .message("OK")
+                .message("Hủy nhận thông báo thành công")
                 .build();
     }
 

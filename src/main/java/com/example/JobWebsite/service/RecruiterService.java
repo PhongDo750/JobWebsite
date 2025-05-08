@@ -10,9 +10,11 @@ import com.example.JobWebsite.exceptionhandler.AppException;
 import com.example.JobWebsite.exceptionhandler.ErrorCode;
 import com.example.JobWebsite.repository.*;
 import com.example.JobWebsite.token.TokenHelper;
+import com.example.JobWebsite.websocket.WebSocketService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,7 @@ public class RecruiterService {
     private final UserRepository userRepository;
     private final NotificationRepository notificationRepository;
     private final PushNotificationService pushNotificationService;
+    private final WebSocketService webSocketService;
 
     @Transactional(readOnly = true)
     public Page<JobOutputV1> getJobsBy(String accessToken, Pageable pageable) {
@@ -135,52 +138,56 @@ public class RecruiterService {
         Long recruiterId = TokenHelper.getUserIdFromToken(accessToken);
         RecruiterJobMapEntity recruiterJobMapEntity = customRepository.getRecruiterJobMap(recruiterJobId);
         if (!recruiterId.equals(recruiterJobMapEntity.getRecruiterId())) {
-            throw new AppException(ErrorCode.UN_AUTHORIZATION);
+            throw new AppException(HttpStatus.UNAUTHORIZED, ErrorCode.UN_AUTHORIZATION);
         }
 
         if (!recruiterJobMapEntity.getState().equals(Common.PENDING_APPROVAL)) {
-            throw new AppException(ErrorCode.UN_AUTHORIZATION);
+            throw new AppException(HttpStatus.UNAUTHORIZED, ErrorCode.UN_AUTHORIZATION);
         }
 
         UserJobMapEntity userJobMapEntity = customRepository.getUserJobMap(recruiterJobMapEntity.getUserJobId());
         if (!userJobMapEntity.getState().equals(Common.APPLIED)) {
-            throw new AppException(ErrorCode.UN_AUTHORIZATION);
+            throw new AppException(HttpStatus.UNAUTHORIZED, ErrorCode.UN_AUTHORIZATION);
         }
         recruiterJobMapEntity.setState(Common.ACCEPTED);
         recruiterJobMapRepository.save(recruiterJobMapEntity);
         userJobMapEntity.setState(Common.ACCEPTED);
         userJobMapRepository.save(userJobMapEntity);
 
-        CompletableFuture.runAsync(() -> {
-            notificationRepository.save(
-                    NotificationEntity.builder()
-                            .userId(recruiterId)
-                            .interactId(userJobMapEntity.getUserId())
-                            .jobId(userJobMapEntity.getJobId())
-                            .hasSeen(Boolean.FALSE)
-                            .type(Common.ACCEPTED)
-                            .createAt(LocalDateTime.now())
-                            .build()
-            );
+        notificationRepository.save(
+                NotificationEntity.builder()
+                        .userId(recruiterId)
+                        .interactId(userJobMapEntity.getUserId())
+                        .jobId(userJobMapEntity.getJobId())
+                        .hasSeen(Boolean.FALSE)
+                        .type(Common.ACCEPTED)
+                        .createAt(LocalDateTime.now())
+                        .build()
+        );
 
-            notificationRepository.save(
-                    NotificationEntity.builder()
-                            .userId(userJobMapEntity.getUserId())
-                            .interactId(recruiterId)
-                            .jobId(userJobMapEntity.getJobId())
-                            .hasSeen(Boolean.FALSE)
-                            .type(Common.ACCEPTED)
-                            .createAt(LocalDateTime.now())
-                            .build()
-            );
+        notificationRepository.save(
+                NotificationEntity.builder()
+                        .userId(userJobMapEntity.getUserId())
+                        .interactId(recruiterId)
+                        .jobId(userJobMapEntity.getJobId())
+                        .hasSeen(Boolean.FALSE)
+                        .type(Common.ACCEPTED)
+                        .createAt(LocalDateTime.now())
+                        .build()
+        );
 
-            String jsonMessage = "{\"title\": \"Thông báo mới\", \"body\": \"Bạn đã ứng thành công cho công việc mới!\"}";
-            pushNotificationService.sendNotification(userJobMapEntity.getUserId(), jsonMessage);
-        });
+        String jsonMessage = "{\"title\": \"Thông báo mới\", \"body\": \"Bạn đã ứng thành công cho công việc mới!\"}";
+        pushNotificationService.sendNotification(userJobMapEntity.getUserId(), jsonMessage);
+
+        int countUser = notificationRepository.countAllByUserIdAndHasSeenIsFalse(userJobMapEntity.getUserId());
+        webSocketService.sendNotificationCount(userJobMapEntity.getUserId(), countUser);
+
+        int countRecruiter = notificationRepository.countAllByUserIdAndHasSeenIsFalse(recruiterId);
+        webSocketService.sendNotificationCount(recruiterId, countRecruiter);
 
         return ApiResponse.builder()
                 .code(200)
-                .message("OK")
+                .message("Duyệt ứng viên thành công")
                 .build();
     }
 
@@ -189,52 +196,56 @@ public class RecruiterService {
         Long recruiterId = TokenHelper.getUserIdFromToken(accessToken);
         RecruiterJobMapEntity recruiterJobMapEntity = customRepository.getRecruiterJobMap(recruiterJobId);
         if (!recruiterId.equals(recruiterJobMapEntity.getRecruiterId())) {
-            throw new AppException(ErrorCode.UN_AUTHORIZATION);
+            throw new AppException(HttpStatus.UNAUTHORIZED, ErrorCode.UN_AUTHORIZATION);
         }
 
         if (!recruiterJobMapEntity.getState().equals(Common.PENDING_APPROVAL)) {
-            throw new AppException(ErrorCode.UN_AUTHORIZATION);
+            throw new AppException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_STATUS);
         }
 
         UserJobMapEntity userJobMapEntity = customRepository.getUserJobMap(recruiterJobMapEntity.getUserJobId());
         if (!userJobMapEntity.getState().equals(Common.APPLIED)) {
-            throw new AppException(ErrorCode.UN_AUTHORIZATION);
+            throw new AppException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_STATUS);
         }
         recruiterJobMapEntity.setState(Common.REJECTED);
         recruiterJobMapRepository.save(recruiterJobMapEntity);
         userJobMapEntity.setState(Common.REJECTED);
         userJobMapRepository.save(userJobMapEntity);
 
-        CompletableFuture.runAsync(() -> {
-            notificationRepository.save(
-                    NotificationEntity.builder()
-                            .userId(recruiterId)
-                            .interactId(userJobMapEntity.getUserId())
-                            .jobId(userJobMapEntity.getJobId())
-                            .hasSeen(Boolean.FALSE)
-                            .type(Common.REJECTED)
-                            .createAt(LocalDateTime.now())
-                            .build()
-            );
+        notificationRepository.save(
+                NotificationEntity.builder()
+                        .userId(recruiterId)
+                        .interactId(userJobMapEntity.getUserId())
+                        .jobId(userJobMapEntity.getJobId())
+                        .hasSeen(Boolean.FALSE)
+                        .type(Common.REJECTED)
+                        .createAt(LocalDateTime.now())
+                        .build()
+        );
 
-            notificationRepository.save(
-                    NotificationEntity.builder()
-                            .userId(userJobMapEntity.getUserId())
-                            .interactId(recruiterId)
-                            .jobId(userJobMapEntity.getJobId())
-                            .hasSeen(Boolean.FALSE)
-                            .type(Common.REJECTED)
-                            .createAt(LocalDateTime.now())
-                            .build()
-            );
+        notificationRepository.save(
+                NotificationEntity.builder()
+                        .userId(userJobMapEntity.getUserId())
+                        .interactId(recruiterId)
+                        .jobId(userJobMapEntity.getJobId())
+                        .hasSeen(Boolean.FALSE)
+                        .type(Common.REJECTED)
+                        .createAt(LocalDateTime.now())
+                        .build()
+        );
 
-            String jsonMessage = "{\"title\": \"Thông báo mới\", \"body\": \"Rất tiếc, bạn đã ứng tuyển không thành công\"}";
-            pushNotificationService.sendNotification(userJobMapEntity.getUserId(), jsonMessage);
-        });
+        String jsonMessage = "{\"title\": \"Thông báo mới\", \"body\": \"Rất tiếc, bạn đã ứng tuyển không thành công\"}";
+        pushNotificationService.sendNotification(userJobMapEntity.getUserId(), jsonMessage);
+
+        int countUser = notificationRepository.countAllByUserIdAndHasSeenIsFalse(userJobMapEntity.getUserId());
+        webSocketService.sendNotificationCount(userJobMapEntity.getUserId(), countUser);
+
+        int countRecruiter = notificationRepository.countAllByUserIdAndHasSeenIsFalse(recruiterId);
+        webSocketService.sendNotificationCount(recruiterId, countRecruiter);
 
         return ApiResponse.builder()
                 .code(200)
-                .message("OK")
+                .message("Từ chối ứng viện thành công")
                 .build();
     }
 }

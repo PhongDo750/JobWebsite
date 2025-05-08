@@ -24,14 +24,13 @@ public class PushNotificationController {
     @Operation(summary = "Đăng ký nhận thông báo từ server")
     @PostMapping("/subscribe")
     public ApiResponse<?> subscribe(@RequestHeader(Common.AUTHORIZATION) String accessToken,
-                                 @RequestBody Subscription subscription) {
+                                    @RequestBody Subscription subscription) {
         return pushNotificationService.subscribe(accessToken, subscription);
     }
 
     @Operation(summary = "Hủy đăng ký nhận thông báo")
     @DeleteMapping("/unsubscribe")
-    public ApiResponse<?> unsubscribe(@RequestHeader(Common.AUTHORIZATION) String accessToken,
-                            @RequestParam String endpoint) {
-        return pushNotificationService.unsubscribe(accessToken, endpoint);
+    public ApiResponse<?> unsubscribe(@RequestHeader(Common.AUTHORIZATION) String accessToken) {
+        return pushNotificationService.unsubscribe(accessToken);
     }
 }

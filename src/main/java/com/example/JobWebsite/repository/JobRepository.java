@@ -13,8 +13,18 @@ import java.util.List;
 
 @Repository
 public interface JobRepository extends JpaRepository<JobEntity, Long>, JpaSpecificationExecutor<JobEntity> {
+    //SELECT *
+    //FROM tbl_job
+    //WHERE user_id = userId
+    //ORDER BY created_at DESC
+    //LIMIT 10 OFFSET 20; => page = 2, size = 10, offset page bo qua
     Page<JobEntity> findAllByUserId(Long userId, Pageable pageable);
 
+    //SELECT *
+    //FROM tbl_job
+    //WHERE id IN jobIds
+    //ORDER BY created_at DESC
+    //LIMIT 10 OFFSET 0;
     Page<JobEntity> findAllByIdIn(List<Long> jobIds, Pageable pageable);
 
     @Query("SELECT j FROM JobEntity j WHERE j.id IN :jobIds")
@@ -34,6 +44,8 @@ public interface JobRepository extends JpaRepository<JobEntity, Long>, JpaSpecif
     @Query("SELECT j FROM JobEntity j WHERE j.userId = :userId")
     List<JobEntity> findAllByUserIdWithoutPaging(@Param("userId") Long userId);
 
+    //DELETE FROM tbl_job
+    //WHERE user_id = userId;
     void deleteAllByUserId(Long userId);
 
 }
