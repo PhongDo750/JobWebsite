@@ -261,6 +261,45 @@ public class JobService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public ApiResponse<List<JobOutputV1>> getMostJobApplication(int quantity) {
+        List<Object[]> query = userJobMapRepository.findTopJobs(quantity);
+        List<Long> jobIds = new ArrayList<>();
+        Map<Long, Long> applications = new HashMap<>();
+        for (Object[] jobId : query) {
+            jobIds.add((Long) jobId[0]);
+            applications.put((Long) jobId[0], (Long) jobId[1]);
+        }
+
+        List<JobEntity> jobEntities = jobRepository.findAllByIdIn(jobIds);
+        Set<Long> userIds = jobEntities.stream().map(JobEntity::getUserId).collect(Collectors.toSet());
+        Map<Long, UserEntity> userEntityMap = userRepository.findAllByIdIn(userIds)
+                .stream().collect(Collectors.toMap(UserEntity::getId, Function.identity()));
+        List<JobOutputV1> jobOutputV1s = new ArrayList<>();
+        for (JobEntity jobEntity : jobEntities) {
+            UserEntity userEntity = userEntityMap.get(jobEntity.getUserId());
+            Long sl = applications.get(jobEntity.getId());
+            JobOutputV1 jobOutputV1 = JobOutputV1.builder()
+                    .id(jobEntity.getId())
+                    .jobName(jobEntity.getJobName())
+                    .minSalary(jobEntity.getMinSalary())
+                    .maxSalary(jobEntity.getMaxSalary())
+                    .address(jobEntity.getAddress())
+                    .expirationDate(jobEntity.getExpirationDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
+                    .quantity(sl)
+                    .nameRecruiter(userEntity.getFullName())
+                    .imageUrl(userEntity.getImageUrl())
+                    .build();
+            jobOutputV1s.add(jobOutputV1);
+        }
+        jobOutputV1s.sort(Comparator.comparing(JobOutputV1::getQuantity).reversed());
+        return ApiResponse.<List<JobOutputV1>>builder()
+                .message("OK")
+                .data(jobOutputV1s)
+                .code(200)
+                .build();
+    }
+
     private Page<JobOutputV1> getJobs(Page<JobEntity> jobEntityPage, String accessToken) {
         Set<Long> recruiterIds = jobEntityPage.stream().map(JobEntity::getUserId).collect(Collectors.toSet());
         Map<Long, UserEntity> recruiterEntityMap =  userRepository.findAllByIdIn(recruiterIds).stream()

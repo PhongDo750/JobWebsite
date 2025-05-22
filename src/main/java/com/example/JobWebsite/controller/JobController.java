@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @AllArgsConstructor
 @CrossOrigin("*")
@@ -90,5 +92,10 @@ public class JobController {
                                             @RequestParam String state,
                                             @RequestHeader(Common.AUTHORIZATION) String accessToken) {
         return jobService.getJobsByState(pageable, state, accessToken);
+    }
+
+    @GetMapping("/get-top-job")
+    public ApiResponse<List<JobOutputV1>> getTopApplication(@RequestParam Integer quantity) {
+        return jobService.getMostJobApplication(quantity);
     }
 }

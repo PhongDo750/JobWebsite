@@ -16,6 +16,7 @@ public class JobOutputV1 {
     private Double maxSalary;
     private String address;
     private String expirationDate;
+    private Long quantity;
     private Boolean hasLiked;
     private String createdAt;
 }

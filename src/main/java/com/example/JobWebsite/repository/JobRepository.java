@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface JobRepository extends JpaRepository<JobEntity, Long>, JpaSpecificationExecutor<JobEntity> {
@@ -47,6 +48,8 @@ public interface JobRepository extends JpaRepository<JobEntity, Long>, JpaSpecif
     //DELETE FROM tbl_job
     //WHERE user_id = userId;
     void deleteAllByUserId(Long userId);
+
+    List<JobEntity> findAllByIdIn(List<Long> jobIds);
 
 }
 
