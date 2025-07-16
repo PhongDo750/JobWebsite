@@ -27,8 +27,25 @@ spring:
           auth: true
           starttls:
             enable: true
+
+  datasource:
+    url: ${DBMS_CONNECTION:jdbc:postgresql://postgres-1:5432/job_website}
+    driverClassName: org.postgresql.Driver
+    password: ${DBMS_PASSWORD:mysecretpassword}
+    username: ${DBMS_USERNAME:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
 server:
   port: 8086
+
+vapid:
+  public:
+    key: BH-fRSeM2e64YC2XlKHhojUusW9j7DcGRcvJ_Fk3RUpiIUUbX5Kn9yc3Gyty3-ZsVhhTy3YhG-Q5_x0he4wrRX4
+  private:
+    key: RKaZObV8kbP2tS-LY9-OcBRpfsJBmRfCUQhLz9Rt08c
+
 
 springdoc:
   api-docs:
